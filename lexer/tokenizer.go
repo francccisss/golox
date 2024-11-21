@@ -33,5 +33,7 @@ func (t Token) toString() {
 }
 
 func Run(source string) {
-	fmt.Println(source)
+	scanner := NewScanner(source)
+	tokens := scanner.ScanTokens()
+	fmt.Println(tokens)
 }

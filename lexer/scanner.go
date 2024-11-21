@@ -1,8 +1,8 @@
 package lexer
 
 import (
+	"fmt"
 	"log"
-	"math"
 )
 
 type Scanner struct {
@@ -19,10 +19,12 @@ func NewScanner(source string) Scanner {
 
 func (s *Scanner) ScanTokens() []Token {
 	// loop until end of file
+	fmt.Println("Start Scan")
 	for {
 		if s.isAtEnd() {
 			break
 		}
+		// fmt.Printf("Current position %d\n", s.current)
 		// Offsets where start is the first character of the lexeme
 		// current is the current character being read
 		s.start = s.current
@@ -31,7 +33,7 @@ func (s *Scanner) ScanTokens() []Token {
 	}
 	s.tokens = append(s.tokens, NewToken(EOF, "", nil, s.line))
 
-	return []Token{}
+	return s.tokens
 }
 
 /*
@@ -41,6 +43,7 @@ If the current character in the lexeme matches any of the patterns in the switch
 */
 func (s *Scanner) scanToken() {
 	c := s.advance()
+	// fmt.Printf("Scanned Token %s\n", c)
 
 	switch c {
 	case "(":
@@ -112,24 +115,33 @@ func (s *Scanner) scanToken() {
 
 			In match(), if the next character is "/" which signifies as a comment, then we advance the current pointer in the source file
 
-			Calling peek() checks if it is the EOF it returns 0 else next character
+			Calling peek() checks next character if it is the EOF it returns 0 else next character
 			Calling isAtEnd() which returns a bool if EOF TRUE else FALSE
-
-			if peek() == new line (\n) and reading is EOF
-			then we break else we keep advancing until we reach EOF and new line
 
 		*/
 
 		if s.match("/") {
+			fmt.Println(c)
 			// If Comment do
 			for {
 				if s.peek() != "\n" && !s.isAtEnd() {
 					s.advance()
 				}
+				break
 			}
 		} else {
 			s.addSingleToken(SLASH)
 		}
+		break
+
+	case " ":
+		break
+	case "\r":
+		break
+	case "\t":
+		break
+	case "\n":
+		s.line++
 		break
 	default:
 		log.Panicf("Unexpected character %s in line %d", c, s.line)

@@ -3,7 +3,7 @@ package interpreter
 import (
 	"bufio"
 	"fmt"
-	lexicalanalyzer "golox/lexical_analyzer"
+	"golox/lexer"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func RunFile(filePath string) error {
 	if err != nil {
 		return err
 	}
-	lexicalanalyzer.Run(string(f))
+	lexer.Run(string(f))
 	return nil
 }
 func RunPrompt() error {
@@ -26,7 +26,7 @@ func RunPrompt() error {
 	for scanner.Scan() {
 		text := scanner.Text()
 		fmt.Printf("> ")
-		lexicalanalyzer.Run(text)
+		lexer.Run(text)
 		if text == "exit" {
 			return nil
 		}

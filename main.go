@@ -18,6 +18,8 @@ func main() {
 		os.Exit(1)
 	} else if len(args) == 2 {
 		fmt.Println("Eval source file")
+		f, _ := os.ReadFile(args[1])
+		fmt.Println(string(f))
 		err := interpreter.RunFile(args[1])
 		if err != nil {
 			fmt.Println(err.Error())
