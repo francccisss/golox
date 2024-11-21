@@ -1,4 +1,4 @@
-package lexicalanalyzer
+package lexer
 
 // takes in a stream of characters, finds a pattern of a
 // lexeme if it matches any of the token type defined in the

@@ -1,4 +1,4 @@
-package lexicalanalyzer
+package lexer
 
 import (
 	"fmt"
