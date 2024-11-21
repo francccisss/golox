@@ -1,0 +1,3 @@
+function new_language(){
+  print("Hello Lox within golang")
+}
