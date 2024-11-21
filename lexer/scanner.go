@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"log"
+	"unicode/utf8"
 )
 
 type Scanner struct {
@@ -20,6 +21,7 @@ func NewScanner(source string) Scanner {
 func (s *Scanner) ScanTokens() []Token {
 	// loop until end of file
 	fmt.Println("Start Scan")
+	fmt.Printf("Source length: %d\n", utf8.RuneCountInString(s.source))
 	for {
 		if s.isAtEnd() {
 			break
@@ -76,6 +78,8 @@ func (s *Scanner) scanToken() {
 	case "*":
 		s.addSingleToken(STAR)
 		break
+
+		// Handling multi-character lexems
 	case "!":
 		ok := s.match("=")
 		var tType = EQUAL_EQUAL
@@ -143,6 +147,9 @@ func (s *Scanner) scanToken() {
 	case "\n":
 		s.line++
 		break
+	case "0":
+		fmt.Println("End of file")
+		break
 	default:
 		log.Panicf("Unexpected character %s in line %d", c, s.line)
 		break
@@ -160,7 +167,7 @@ func (s *Scanner) peek() string {
 }
 
 func (s *Scanner) isAtEnd() bool {
-	return s.current >= len(s.source)
+	return s.current >= utf8.RuneCountInString(s.source)-1
 }
 
 /*
@@ -170,7 +177,8 @@ in the current position of the substring from the starting lexeme
 Advance which "advances" the pointer to the next position to be read
 */
 func (s *Scanner) advance() string {
-	s.current++
+	fmt.Println(string(s.source[s.current]))
+	defer func() { s.current++ }()
 	return string(s.source[s.current])
 }
 
@@ -180,8 +188,8 @@ func (s *Scanner) addSingleToken(tokenType int) {
 }
 
 func (s *Scanner) addToken(tokenType int, literal any) {
-	byteText := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, NewToken(tokenType, string(byteText), literal, s.line))
+	var byteText = s.source[s.start:s.current]
+	s.tokens = append(s.tokens, NewToken(tokenType, byteText, literal, s.line))
 }
 
 /*

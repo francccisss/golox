@@ -1,5 +1,7 @@
 package lexer
 
+import "fmt"
+
 // takes in a stream of characters, finds a pattern of a
 // lexeme if it matches any of the token type defined in the
 // TokenType enum, if so create a <token> out of that lexeme,
@@ -54,6 +56,15 @@ const (
 	EOF
 )
 
-func Lexer() {
+func Run(source string) {
+	scanner := NewScanner(source)
+	tokens := scanner.ScanTokens()
+	for _, token := range tokens {
+		token.toString()
 
+	}
+}
+
+func (t Token) toString() {
+	fmt.Printf("{ Token Type: %d, Lexeme: %s, Literal: %+v }\n", t.tType, t.lexeme, t.literal)
 }

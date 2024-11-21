@@ -1,9 +1,5 @@
 package lexer
 
-import (
-	"fmt"
-)
-
 type Token struct {
 	tType   int
 	lexeme  string
@@ -26,14 +22,4 @@ func NewToken(tokenType int, lexeme string, literal any, line int) Token {
 		lexeme:  lexeme,
 		literal: literal,
 		line:    line}
-}
-
-func (t Token) toString() {
-	fmt.Printf("%s %s %+v", enumString[t.tType], t.lexeme, t.literal)
-}
-
-func Run(source string) {
-	scanner := NewScanner(source)
-	tokens := scanner.ScanTokens()
-	fmt.Println(tokens)
 }
