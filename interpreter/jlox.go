@@ -1,7 +1,8 @@
 package interpreter
 
 import (
-	"log"
+	"bufio"
+	"fmt"
 	"os"
 )
 
@@ -10,11 +11,24 @@ type interpreter interface {
 	RunPrompt(line string)
 }
 
-func RunFile(filePath string) {
+func RunFile(filePath string) error {
 	f, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Panicf(err.Error())
+		return err
 	}
 	Run(string(f))
+	return nil
 }
-func RunPrompt(line string) {}
+func RunPrompt() error {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("> ")
+	for scanner.Scan() {
+		text := scanner.Text()
+		fmt.Printf("> ")
+		Run(text)
+		if text == "exit" {
+			return nil
+		}
+	}
+	return nil
+}
