@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -147,16 +148,84 @@ func (s *Scanner) scanToken() {
 	case "\n":
 		s.line++
 		break
+		// Handling literals
+	case `"`:
+		s.string(`"`)
+		break
+	case "'":
+		s.string("'")
+		break
+
 	case "0":
 		fmt.Println("End of file")
 		break
 	default:
+		if s.isDigit(c) {
+			s.number()
+			break
+		}
 		log.Panicf("Unexpected character %s in line %d", c, s.line)
 		break
 	}
 }
 
-// To Peek one character at a time
+func (s *Scanner) string(punc string) {
+
+	for {
+		if s.peek() != punc && !s.isAtEnd() {
+			if s.peek() == "\n" {
+				s.line++
+			}
+			s.advance()
+		} else {
+			break
+		}
+	}
+
+	if s.isAtEnd() {
+		log.Panicf("Unterminated string")
+	}
+	s.advance()                                         // consume the last `"`
+	s.addToken(STRING, s.source[s.start+1:s.current-1]) // trimming quotes
+}
+
+func (s *Scanner) number() {
+
+	for {
+		if s.peek() != "." && !s.isAtEnd() {
+			s.advance()
+		} else {
+			break
+		}
+	}
+
+	if s.peek() == "." && s.isDigit(s.peekNext()) {
+		for {
+			if s.peek() != "\n" && !s.isAtEnd() {
+				s.advance()
+			} else {
+				break
+			}
+		}
+	}
+
+	s.addToken(NUMBER, s.source[s.start:s.current])
+}
+
+func (s *Scanner) isDigit(c string) bool {
+
+	i, err := strconv.Atoi(c)
+	if err != nil {
+		log.Panicf("%d: Invalid character conversion of string: %s\n", s.line, c)
+	}
+
+	if i >= 0 && i <= 9 {
+		return true
+	}
+	return false
+}
+
+// To Peek at the current character
 func (s *Scanner) peek() string {
 	if s.isAtEnd() {
 		// cant parse "/0" escape sequence
@@ -166,8 +235,18 @@ func (s *Scanner) peek() string {
 	return string(s.source[s.current])
 }
 
+// To Peek at the next character from the current character
+func (s *Scanner) peekNext() string {
+	if s.current+1 >= len(s.source)-1 {
+		// cant parse "/0" escape sequence
+		// gonna have to manually interpret this myself
+		return "0"
+	}
+	return string(s.source[s.current+1])
+}
+
 func (s *Scanner) isAtEnd() bool {
-	return s.current >= utf8.RuneCountInString(s.source)-1
+	return s.current >= len(s.source)-1
 }
 
 /*
@@ -177,7 +256,6 @@ in the current position of the substring from the starting lexeme
 Advance which "advances" the pointer to the next position to be read
 */
 func (s *Scanner) advance() string {
-	fmt.Println(string(s.source[s.current]))
 	defer func() { s.current++ }()
 	return string(s.source[s.current])
 }

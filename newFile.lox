@@ -1,1 +1,4 @@
 { } /
+"String literal"
+'c' "Character"
+12.321

@@ -66,5 +66,5 @@ func Run(source string) {
 }
 
 func (t Token) toString() {
-	fmt.Printf("{ Token Type: %d, Lexeme: %s, Literal: %+v }\n", t.tType, t.lexeme, t.literal)
+	fmt.Printf("{ Token Type: %s, Lexeme: %s, Literal: %+v }\n", enumString[t.tType], t.lexeme, t.literal)
 }
