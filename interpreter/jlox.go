@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"bufio"
-	"fmt"
 	"golox/lexer"
 	"os"
 )
@@ -22,14 +21,13 @@ func RunFile(filePath string) error {
 }
 func RunPrompt() error {
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Printf("> ")
 	for scanner.Scan() {
 		text := scanner.Text()
-		fmt.Printf("> ")
-		lexer.Run(text)
 		if text == "exit" {
 			return nil
 		}
+
+		lexer.Run(text)
 	}
 	return nil
 }

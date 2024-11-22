@@ -164,7 +164,7 @@ func (s *Scanner) scanToken() {
 			s.number()
 			break
 		}
-		log.Panicf("Unexpected character %s in line %d", c, s.line)
+		fmt.Printf("Unexpected character %s in line %d\n", c, s.line)
 		break
 	}
 }
@@ -183,7 +183,7 @@ func (s *Scanner) string(punc string) {
 	}
 
 	if s.isAtEnd() {
-		log.Panicf("Unterminated string")
+		fmt.Printf("line %d Unterminated String\n", s.line)
 	}
 	s.advance()                                         // consume the last `"`
 	s.addToken(STRING, s.source[s.start+1:s.current-1]) // trimming quotes
@@ -209,17 +209,17 @@ func (s *Scanner) number() {
 		}
 	}
 
-	s.addToken(NUMBER, s.source[s.start:s.current])
+	fmt.Printf("Number %s", s.source[s.start:s.current])
+	i, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	s.addToken(NUMBER, i)
 }
 
 func (s *Scanner) isDigit(c string) bool {
 
-	i, err := strconv.Atoi(c)
-	if err != nil {
-		log.Panicf("%d: Invalid character conversion of string: %s\n", s.line, c)
-	}
-
-	if i >= 0 && i <= 9 {
+	if c >= "0" && c <= "9" {
 		return true
 	}
 	return false
