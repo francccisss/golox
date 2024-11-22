@@ -43,3 +43,7 @@ func NewToken(tokenType int, lexeme string, literal any, line int) Token {
 		literal: literal,
 		line:    line}
 }
+
+func (t Token) toString() {
+	fmt.Printf("{ Token Type: %s, Lexeme: %s, Literal: %+v }\n", enumString[t.tType], t.lexeme, t.literal)
+}
