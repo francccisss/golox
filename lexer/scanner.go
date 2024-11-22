@@ -46,7 +46,6 @@ If the current character in the lexeme matches any of the patterns in the switch
 */
 func (s *Scanner) scanToken() {
 	c := s.advance()
-	// fmt.Printf("Scanned Token %s\n", c)
 
 	switch c {
 	case "(":
@@ -181,7 +180,13 @@ func (s *Scanner) identifier() {
 			break
 		}
 	}
-	s.addSingleToken(IDENTIFIER)
+
+	// check identifier if it exists as a keyword in the hashmap
+	tType, isKeyword := Keywords[s.source[s.start:s.current]]
+	if !isKeyword {
+		tType = IDENTIFIER
+	}
+	s.addSingleToken(tType)
 }
 
 func (s *Scanner) string(punc string) {
@@ -229,6 +234,24 @@ func (s *Scanner) number() {
 		log.Println(err.Error())
 	}
 	s.addToken(NUMBER, i)
+}
+
+/*
+Checks the second character if it matches the expected character then advances
+if it does match which means its a single lexeme
+*/
+func (s *Scanner) match(expected string) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if string(s.source[s.current]) != expected {
+		return false
+	}
+	// since the current character is actually a match with the next expected
+	// character which makes it a single lexeme or is atomic eg: !=, >=, <=
+	// then we can just go to the next character
+	s.current++
+	return true
 }
 
 func isDigit(c string) bool {
@@ -284,9 +307,10 @@ in the current position of the substring from the starting lexeme
 Advance which "advances" the pointer to the next position to be read
 */
 func (s *Scanner) advance() string {
-	currentString := s.source[s.current]
-	s.current++
-	return string(currentString)
+	defer func() {
+		s.current++
+	}()
+	return string(s.source[s.current])
 }
 
 // Wrapper for single lexeme character
@@ -297,22 +321,4 @@ func (s *Scanner) addSingleToken(tokenType int) {
 func (s *Scanner) addToken(tokenType int, literal any) {
 	var byteText = s.source[s.start:s.current]
 	s.tokens = append(s.tokens, NewToken(tokenType, byteText, literal, s.line))
-}
-
-/*
-Checks the second character if it matches the expected character then advances
-if it does match which means its a single lexeme
-*/
-func (s *Scanner) match(expected string) bool {
-	if s.isAtEnd() {
-		return false
-	}
-	if string(s.source[s.current+1]) != expected {
-		return false
-	}
-	// since the current character is actually a match with the next expected
-	// character which makes it a single lexeme or is atomic eg: !=, >=, <=
-	// then we can just go to the next character
-	s.current++
-	return true
 }
