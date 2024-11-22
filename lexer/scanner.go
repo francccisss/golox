@@ -126,7 +126,6 @@ func (s *Scanner) scanToken() {
 		*/
 
 		if s.match("/") {
-			fmt.Println(c)
 			// If Comment do
 			for {
 				if s.peek() != "\n" && !s.isAtEnd() {
@@ -160,13 +159,29 @@ func (s *Scanner) scanToken() {
 		fmt.Println("End of file")
 		break
 	default:
-		if s.isDigit(c) {
+		if isDigit(c) {
 			s.number()
+			break
+		}
+
+		if isAlphabet(c) {
+			s.identifier()
 			break
 		}
 		fmt.Printf("Unexpected character %s in line %d\n", c, s.line)
 		break
 	}
+}
+
+func (s *Scanner) identifier() {
+	for {
+		if isAlphaNum(s.peek()) && !s.isAtEnd() {
+			s.advance()
+		} else {
+			break
+		}
+	}
+	s.addSingleToken(IDENTIFIER)
 }
 
 func (s *Scanner) string(punc string) {
@@ -199,7 +214,7 @@ func (s *Scanner) number() {
 		}
 	}
 
-	if s.peek() == "." && s.isDigit(s.peekNext()) {
+	if s.peek() == "." && isDigit(s.peekNext()) {
 		for {
 			if s.peek() != "\n" && !s.isAtEnd() {
 				s.advance()
@@ -209,7 +224,6 @@ func (s *Scanner) number() {
 		}
 	}
 
-	fmt.Printf("Number %s", s.source[s.start:s.current])
 	i, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
 	if err != nil {
 		log.Println(err.Error())
@@ -217,9 +231,23 @@ func (s *Scanner) number() {
 	s.addToken(NUMBER, i)
 }
 
-func (s *Scanner) isDigit(c string) bool {
+func isDigit(c string) bool {
 
 	if c >= "0" && c <= "9" {
+		return true
+	}
+	return false
+}
+
+func isAlphabet(c string) bool {
+	if c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c == "_" {
+		return true
+	}
+	return false
+}
+
+func isAlphaNum(c string) bool {
+	if isDigit(c) || isAlphabet(c) {
 		return true
 	}
 	return false
@@ -246,7 +274,7 @@ func (s *Scanner) peekNext() string {
 }
 
 func (s *Scanner) isAtEnd() bool {
-	return s.current >= len(s.source)-1
+	return s.current >= len(s.source)
 }
 
 /*
@@ -256,8 +284,9 @@ in the current position of the substring from the starting lexeme
 Advance which "advances" the pointer to the next position to be read
 */
 func (s *Scanner) advance() string {
-	defer func() { s.current++ }()
-	return string(s.source[s.current])
+	currentString := s.source[s.current]
+	s.current++
+	return string(currentString)
 }
 
 // Wrapper for single lexeme character
