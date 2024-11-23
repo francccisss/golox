@@ -1,5 +1,7 @@
 package lexer
 
+import "fmt"
+
 type Token struct {
 	tType   int
 	lexeme  string
